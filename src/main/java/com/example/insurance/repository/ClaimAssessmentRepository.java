@@ -48,13 +48,12 @@ public class ClaimAssessmentRepository implements PanacheRepositoryBase<ClaimAss
     }
 
     @Transactional
-    public ClaimAssessment createOrUpdate(ClaimAssessment assessment) {
+    public void createOrUpdate(ClaimAssessment assessment) {
         if (assessment.getId() == null) {
             persist(assessment);
         } else {
             entityManager.merge(assessment);
         }
-        return assessment;
     }
 
     public long countFraudulentClaims() {

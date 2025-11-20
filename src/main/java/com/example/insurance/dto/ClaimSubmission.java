@@ -7,10 +7,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Setter
+@Getter
 public class ClaimSubmission {
 
     private String claimNumber;
@@ -41,87 +45,5 @@ public class ClaimSubmission {
     private String policyholderName;
     private String policyholderEmail;
 
-    // Constructors
     public ClaimSubmission() {}
-
-    // Getters and Setters
-    public String getClaimNumber() {
-        return claimNumber;
-    }
-
-    public void setClaimNumber(String claimNumber) {
-        this.claimNumber = claimNumber;
-    }
-
-    public String getPolicyNumber() {
-        return policyNumber;
-    }
-
-    public void setPolicyNumber(String policyNumber) {
-        this.policyNumber = policyNumber;
-    }
-
-    public Claim.ClaimType getClaimType() {
-        return claimType;
-    }
-
-    public void setClaimType(Claim.ClaimType claimType) {
-        this.claimType = claimType;
-    }
-
-    public LocalDate getIncidentDate() {
-        return incidentDate;
-    }
-
-    public void setIncidentDate(LocalDate incidentDate) {
-        this.incidentDate = incidentDate;
-    }
-
-    public BigDecimal getClaimedAmount() {
-        return claimedAmount;
-    }
-
-    public void setClaimedAmount(BigDecimal claimedAmount) {
-        this.claimedAmount = claimedAmount;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Claim.ClaimPriority getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Claim.ClaimPriority priority) {
-        this.priority = priority;
-    }
-
-    public String getPolicyholderId() {
-        return policyholderId;
-    }
-
-    public void setPolicyholderId(String policyholderId) {
-        this.policyholderId = policyholderId;
-    }
-
-    public String getPolicyholderName() {
-        return policyholderName;
-    }
-
-    public void setPolicyholderName(String policyholderName) {
-        this.policyholderName = policyholderName;
-    }
-
-    public String getPolicyholderEmail() {
-        return policyholderEmail;
-    }
-
-    public void setPolicyholderEmail(String policyholderEmail) {
-        this.policyholderEmail = policyholderEmail;
-    }
 }

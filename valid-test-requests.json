@@ -1,0 +1,49 @@
+{
+  "valid_test_requests": [
+    {
+      "description": "Valid claim with POL001",
+      "request": {
+        "claimNumber": "CLM-TEST-001",
+        "policyNumber": "POL001",
+        "claimType": "ACCIDENT",
+        "incidentDate": "2024-01-15",
+        "claimedAmount": 5000.00,
+        "description": "Car accident test claim",
+        "priority": "NORMAL",
+        "policyholderId": "PH001",
+        "policyholderName": "John Doe",
+        "policyholderEmail": "john.doe@email.com"
+      }
+    },
+    {
+      "description": "Valid claim with POL002",
+      "request": {
+        "claimNumber": "CLM-TEST-002",
+        "policyNumber": "POL002",
+        "claimType": "ILLNESS",
+        "incidentDate": "2024-01-20",
+        "claimedAmount": 3000.00,
+        "description": "Medical treatment claim",
+        "priority": "NORMAL",
+        "policyholderId": "PH002",
+        "policyholderName": "Jane Smith",
+        "policyholderEmail": "jane.smith@email.com"
+      }
+    },
+    {
+      "description": "Valid urgent claim with POL003",
+      "request": {
+        "claimNumber": "CLM-URGENT-001",
+        "policyNumber": "POL003",
+        "claimType": "ACCIDENT",
+        "incidentDate": "2024-01-18",
+        "claimedAmount": 15000.00,
+        "description": "Major car accident urgent claim",
+        "priority": "NORMAL",
+        "policyholderId": "PH003",
+        "policyholderName": "Bob Johnson",
+        "policyholderEmail": "bob.johnson@email.com"
+      }
+    }
+  ]
+}

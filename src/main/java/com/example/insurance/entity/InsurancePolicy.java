@@ -14,11 +14,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "insurance_policies")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "insurance_policies")
 public class InsurancePolicy extends PanacheEntityBase {
 
     @Id

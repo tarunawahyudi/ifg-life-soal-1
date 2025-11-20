@@ -21,6 +21,10 @@ public class InsurancePolicyRepository implements PanacheRepositoryBase<Insuranc
         return find("policyNumber", policyNumber).firstResultOptional();
     }
 
+    public boolean existsByPolicyNumber(String policyNumber) {
+        return count("policyNumber", policyNumber) > 0;
+    }
+
     public List<InsurancePolicy> findByPolicyholderId(String policyholderId) {
         return find("policyholderId", policyholderId).list();
     }

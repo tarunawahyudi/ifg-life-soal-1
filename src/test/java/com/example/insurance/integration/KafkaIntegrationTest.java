@@ -4,17 +4,15 @@ import com.example.insurance.entity.Claim;
 import com.example.insurance.entity.ClaimAssessment;
 import com.example.insurance.repository.ClaimRepository;
 import com.example.insurance.repository.ClaimAssessmentRepository;
-import com.example.insurance.service.KafkaClaimService;
+import com.example.insurance.service.KafkaClaimConsumerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class KafkaIntegrationTest {
 
     @Inject
-    KafkaClaimService kafkaClaimService;
+    KafkaClaimConsumerService kafkaConsumerService;
 
     @Inject
     ClaimRepository claimRepository;
@@ -35,7 +33,9 @@ public class KafkaIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // No need to clean up database - use unique claim numbers for each test
+        // Clean up database before each test
+        assessmentRepository.deleteAll();
+        claimRepository.deleteAll();
     }
 
     @Test
@@ -55,8 +55,8 @@ public class KafkaIntegrationTest {
             }
             """;
 
-        // Process the claim directly through the service
-        kafkaClaimService.processClaimSubmission(claimSubmissionJson);
+        // Process the claim through consumer service
+        kafkaConsumerService.processClaimSubmission(claimSubmissionJson);
 
         // Verify claim was saved to database
         Claim savedClaim = claimRepository.findByClaimNumber("INT-001")
@@ -101,7 +101,7 @@ public class KafkaIntegrationTest {
             }
             """;
 
-        kafkaClaimService.processClaimSubmission(highPriorityClaimJson);
+        kafkaConsumerService.processClaimSubmission(highPriorityClaimJson);
 
         // Verify claim was saved with correct priority
         Claim savedClaim = claimRepository.findByClaimNumber("INT-HIGH-001")
@@ -135,7 +135,7 @@ public class KafkaIntegrationTest {
             }
             """;
 
-        kafkaClaimService.processClaimSubmission(suspiciousClaimJson);
+        kafkaConsumerService.processClaimSubmission(suspiciousClaimJson);
 
         // Verify claim was saved
         Claim savedClaim = claimRepository.findByClaimNumber("INT-FRAUD-001")
@@ -172,7 +172,7 @@ public class KafkaIntegrationTest {
             """;
 
         // Test the high priority topic processing
-        kafkaClaimService.processHighPriorityClaim(urgentClaimJson);
+        kafkaConsumerService.processHighPriorityClaim(urgentClaimJson);
 
         // Verify urgent claim was processed correctly
         Claim savedClaim = claimRepository.findByClaimNumber("INT-URGENT-001")
@@ -201,7 +201,7 @@ public class KafkaIntegrationTest {
 
         // Should throw exception for invalid JSON
         assertThrows(RuntimeException.class, () -> {
-            kafkaClaimService.processClaimSubmission(invalidJson);
+            kafkaConsumerService.processClaimSubmission(invalidJson);
         });
 
         // Verify nothing was saved to database
@@ -222,7 +222,10 @@ public class KafkaIntegrationTest {
                 "incidentDate": "2024-01-10",
                 "claimedAmount": 3000.00,
                 "description": "First test claim",
-                "priority": "NORMAL"
+                "priority": "NORMAL",
+                "policyholderId": "PH-MULTI-001",
+                "policyholderName": "User One",
+                "policyholderEmail": "user1@integration.com"
             }
             """,
             """
@@ -233,7 +236,10 @@ public class KafkaIntegrationTest {
                 "incidentDate": "2024-01-11",
                 "claimedAmount": 6000.00,
                 "description": "Second test claim",
-                "priority": "HIGH"
+                "priority": "HIGH",
+                "policyholderId": "PH-MULTI-002",
+                "policyholderName": "User Two",
+                "policyholderEmail": "user2@integration.com"
             }
             """,
             """
@@ -244,14 +250,17 @@ public class KafkaIntegrationTest {
                 "incidentDate": "2024-01-12",
                 "claimedAmount": 2000.00,
                 "description": "Third test claim",
-                "priority": "LOW"
+                "priority": "LOW",
+                "policyholderId": "PH-MULTI-003",
+                "policyholderName": "User Three",
+                "policyholderEmail": "user3@integration.com"
             }
             """
         };
 
         // Process multiple claims
         for (String claimJson : claimJsons) {
-            kafkaClaimService.processClaimSubmission(claimJson);
+            kafkaConsumerService.processClaimSubmission(claimJson);
         }
 
         // Verify all claims were saved

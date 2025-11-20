@@ -21,7 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class KafkaClaimServiceTest {
 
     @Inject
-    KafkaClaimService kafkaClaimService;
+    KafkaClaimConsumerService kafkaConsumerService;
+
+    @Inject
+    ClaimProcessorService claimProcessorService;
+
+    @Inject
+    ClaimAssessmentService assessmentService;
 
     @Inject
     ClaimRepository claimRepository;
@@ -33,8 +39,6 @@ public class KafkaClaimServiceTest {
     ObjectMapper objectMapper;
 
     private ClaimSubmission sampleClaimSubmission;
-    private Claim sampleClaim;
-    private ClaimAssessment sampleAssessment;
 
     @BeforeEach
     void setUp() {
@@ -53,26 +57,26 @@ public class KafkaClaimServiceTest {
         sampleClaimSubmission.setPolicyholderName("John Doe");
         sampleClaimSubmission.setPolicyholderEmail("john.doe@email.com");
 
-        sampleClaim = Claim.builder()
-                .claimNumber("CLM-001")
-                .policyNumber("POL-12345")
-                .claimType(Claim.ClaimType.ACCIDENT)
-                .incidentDate(LocalDate.of(2024, 1, 15))
-                .claimedAmount(new BigDecimal("5000.00"))
-                .description("Car accident claim")
-                .priority(Claim.ClaimPriority.NORMAL)
-                .status(Claim.ClaimStatus.SUBMITTED)
-                .build();
+        Claim sampleClaim = Claim.builder()
+            .claimNumber("CLM-001")
+            .policyNumber("POL-12345")
+            .claimType(Claim.ClaimType.ACCIDENT)
+            .incidentDate(LocalDate.of(2024, 1, 15))
+            .claimedAmount(new BigDecimal("5000.00"))
+            .description("Car accident claim")
+            .priority(Claim.ClaimPriority.NORMAL)
+            .status(Claim.ClaimStatus.SUBMITTED)
+            .build();
 
-        sampleAssessment = ClaimAssessment.builder()
-                .claimNumber("CLM-001")
-                .assessorId("TEST_ASSESSOR")
-                .approvedAmount(new BigDecimal("4250.00"))
-                .riskScore(25)
-                .fraudFlag(false)
-                .assessmentNotes("Test assessment")
-                .processingTimeMs(500)
-                .build();
+        ClaimAssessment sampleAssessment = ClaimAssessment.builder()
+            .claimNumber("CLM-001")
+            .assessorId("TEST_ASSESSOR")
+            .approvedAmount(new BigDecimal("4250.00"))
+            .riskScore(25)
+            .fraudFlag(false)
+            .assessmentNotes("Test assessment")
+            .processingTimeMs(500)
+            .build();
     }
 
     @Test
@@ -93,7 +97,7 @@ public class KafkaClaimServiceTest {
             """;
 
         // Process the claim
-        kafkaClaimService.processClaimSubmission(claimJson);
+        kafkaConsumerService.processClaimSubmission(claimJson);
 
         // Verify claim was saved to database
         Claim savedClaim = claimRepository.findByClaimNumber("CLM-001")
@@ -138,7 +142,7 @@ public class KafkaClaimServiceTest {
             }
             """;
 
-        kafkaClaimService.processClaimSubmission(highRiskClaimJson);
+        kafkaConsumerService.processClaimSubmission(highRiskClaimJson);
 
         // Verify claim was saved
         Claim savedClaim = claimRepository.findByClaimNumber("CLM-002")
@@ -176,7 +180,7 @@ public class KafkaClaimServiceTest {
             }
             """;
 
-        kafkaClaimService.processHighPriorityClaim(highPriorityClaimJson);
+        kafkaConsumerService.processHighPriorityClaim(highPriorityClaimJson);
 
         // Verify urgent claim was processed correctly
         Claim savedClaim = claimRepository.findByClaimNumber("CLM-003")
@@ -211,7 +215,7 @@ public class KafkaClaimServiceTest {
             }
             """;
 
-        kafkaClaimService.processClaimSubmission(urgentClaimJson);
+        kafkaConsumerService.processClaimSubmission(urgentClaimJson);
 
         // Verify urgent claim was saved
         Claim savedClaim = claimRepository.findByClaimNumber("CLM-004")
@@ -239,7 +243,7 @@ public class KafkaClaimServiceTest {
 
         // Should throw exception for invalid JSON
         assertThrows(RuntimeException.class, () -> {
-            kafkaClaimService.processClaimSubmission(invalidJson);
+            kafkaConsumerService.processClaimSubmission(invalidJson);
         });
 
         // Verify nothing was saved to database
@@ -264,7 +268,7 @@ public class KafkaClaimServiceTest {
             }
             """;
 
-        kafkaClaimService.processClaimSubmission(lowRiskClaimJson);
+        kafkaConsumerService.processClaimSubmission(lowRiskClaimJson);
 
         // Verify low risk claim was processed
         Claim savedClaim = claimRepository.findByClaimNumber("CLM-005")
@@ -316,7 +320,7 @@ public class KafkaClaimServiceTest {
 
         // Process multiple claims
         for (String claimJson : claimJsons) {
-            kafkaClaimService.processClaimSubmission(claimJson);
+            kafkaConsumerService.processClaimSubmission(claimJson);
         }
 
         // Verify all claims were saved

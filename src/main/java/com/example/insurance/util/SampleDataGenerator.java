@@ -85,4 +85,19 @@ public class SampleDataGenerator {
 
         return claim;
     }
+
+    public static ClaimSubmission generateHighPriorityClaimSubmission() {
+        ClaimSubmission claim = generateSampleClaimSubmission();
+
+        // Set to high priority
+        claim.setPriority(random.nextBoolean() ? Claim.ClaimPriority.HIGH : Claim.ClaimPriority.URGENT);
+
+        // Higher claimed amount for high priority
+        claim.setClaimedAmount(BigDecimal.valueOf(10000 + random.nextDouble() * 25000));
+
+        // Recent incident date for urgency
+        claim.setIncidentDate(LocalDate.now().minusDays(random.nextInt(7)));
+
+        return claim;
+    }
 }
